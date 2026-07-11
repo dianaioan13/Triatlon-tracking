@@ -208,6 +208,10 @@
   .strength-block{border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:#fff;}
   .sets-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px;}
   .sets-grid label{font-size:10px; margin-bottom:3px;}
+  .set-cell{border:1px solid var(--line); border-radius:8px; padding:6px; background:#fffdf8;}
+  .set-cell .set-title{font-size:10px; font-weight:700; color:var(--ink-soft); text-align:center; margin-bottom:4px;}
+  .set-cell input{padding:6px 6px; font-size:12.5px; margin-bottom:4px;}
+  .set-cell input:last-child{margin-bottom:0;}
   .pr-row{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px dashed var(--line); font-size:14px;}
   .pr-row:last-child{border-bottom:none;}
   .pr-weight{font-family:'JetBrains Mono'; font-weight:700; color:var(--green);}
@@ -578,7 +582,7 @@ function toggleDisciplineFields(){
 
 function addStrengthBlock(){
   sbCounter++;
-  strengthBlocks.push({id:sbCounter, exercise:CROSSFIT_EXERCISES[0], sets:['','','','','']});
+  strengthBlocks.push({id:sbCounter, exercise:CROSSFIT_EXERCISES[0], sets:[{kg:'',reps:''},{kg:'',reps:''},{kg:'',reps:''},{kg:'',reps:''},{kg:'',reps:''}]});
   renderStrengthBlocks();
 }
 function removeStrengthBlock(id){
@@ -600,9 +604,10 @@ function renderStrengthBlocks(){
       </div>
       <div class="sets-grid">
         ${[0,1,2,3,4].map(i=>`
-          <div>
-            <label>Seria ${i+1} (kg)</label>
-            <input type="number" step="0.5" class="sb-set" data-i="${i}" value="${b.sets[i]}">
+          <div class="set-cell">
+            <div class="set-title">Seria ${i+1}</div>
+            <input type="number" step="0.5" class="sb-kg" data-i="${i}" placeholder="kg" value="${b.sets[i].kg}">
+            <input type="number" step="1" class="sb-reps" data-i="${i}" placeholder="reps" value="${b.sets[i].reps}">
           </div>`).join('')}
       </div>
     </div>
@@ -614,10 +619,16 @@ function renderStrengthBlocks(){
       const b = strengthBlocks.find(x=>x.id===id);
       b.exercise = e.target.value;
     });
-    blockEl.querySelectorAll('.sb-set').forEach(inp=>{
+    blockEl.querySelectorAll('.sb-kg').forEach(inp=>{
       inp.addEventListener('input',(e)=>{
         const b = strengthBlocks.find(x=>x.id===id);
-        b.sets[parseInt(e.target.dataset.i)] = e.target.value;
+        b.sets[parseInt(e.target.dataset.i)].kg = e.target.value;
+      });
+    });
+    blockEl.querySelectorAll('.sb-reps').forEach(inp=>{
+      inp.addEventListener('input',(e)=>{
+        const b = strengthBlocks.find(x=>x.id===id);
+        b.sets[parseInt(e.target.dataset.i)].reps = e.target.value;
       });
     });
     blockEl.querySelector('.sb-remove').addEventListener('click',()=>removeStrengthBlock(id));
@@ -630,10 +641,11 @@ function getPRs(){
   entries.forEach(e=>{
     if(e.discipline==='crossfit' && e.crossfit && e.crossfit.strength){
       e.crossfit.strength.forEach(b=>{
-        b.sets.forEach(w=>{
+        b.sets.forEach(s=>{
+          const w = s.kg;
           if(w==null || isNaN(w)) return;
           if(!prs[b.exercise] || w > prs[b.exercise].weight){
-            prs[b.exercise] = {weight:w, date:e.date};
+            prs[b.exercise] = {weight:w, reps:s.reps, date:e.date};
           }
         });
       });
@@ -709,7 +721,15 @@ document.getElementById('saveBtn').addEventListener('click', ()=>{
     desc = document.getElementById('wod-desc').value.trim();
     const prevPRs = getPRs();
     const strength = strengthBlocks
-      .map(b=>({exercise:b.exercise, sets:b.sets.map(s=>s===''?null:parseFloat(s)).filter(v=>v!==null && !isNaN(v))}))
+      .map(b=>({
+        exercise:b.exercise,
+        sets:b.sets
+          .map(s=>({
+            kg: s.kg===''?null:parseFloat(s.kg),
+            reps: s.reps===''?null:parseInt(s.reps)
+          }))
+          .filter(s=>s.kg!==null && !isNaN(s.kg))
+      }))
       .filter(b=>b.sets.length>0);
     const wodType = document.getElementById('wod-type').value;
     const wodTime = document.getElementById('wod-time').value.trim();
@@ -723,7 +743,7 @@ document.getElementById('saveBtn').addEventListener('click', ()=>{
     crossfitData = {strength, wod};
 
     strength.forEach(b=>{
-      const maxSet = Math.max(...b.sets);
+      const maxSet = Math.max(...b.sets.map(s=>s.kg));
       if(!prevPRs[b.exercise] || maxSet > prevPRs[b.exercise].weight){
         newPRs.push({exercise:b.exercise, weight:maxSet});
       }
@@ -897,7 +917,10 @@ function renderHistory(){
     let crossfitHtml = '';
     if(e.discipline === 'crossfit' && e.crossfit){
       if(e.crossfit.strength && e.crossfit.strength.length){
-        const lines = e.crossfit.strength.map(b=>`<strong>${escapeHtml(b.exercise)}:</strong> ${b.sets.join(' / ')} kg`).join('<br>');
+        const lines = e.crossfit.strength.map(b=>{
+          const setsStr = b.sets.map(s=> s.reps ? `${s.kg}kg×${s.reps}` : `${s.kg}kg`).join(' / ');
+          return `<strong>${escapeHtml(b.exercise)}:</strong> ${setsStr}`;
+        }).join('<br>');
         crossfitHtml += `<div class="entry-meta" style="margin-top:6px; line-height:1.6;">💪 ${lines}</div>`;
       }
       if(e.crossfit.wod){
@@ -1010,7 +1033,7 @@ function renderDashboard(){
   } else {
     prList.innerHTML = prExercises
       .sort((a,b)=> prs[b].weight - prs[a].weight)
-      .map(ex => `<div class="pr-row"><span>${escapeHtml(ex)}</span><span class="pr-weight">${prs[ex].weight} kg</span></div>`)
+      .map(ex => `<div class="pr-row"><span>${escapeHtml(ex)}</span><span class="pr-weight">${prs[ex].weight} kg${prs[ex].reps ? ' × '+prs[ex].reps : ''}</span></div>`)
       .join('');
   }
 }
