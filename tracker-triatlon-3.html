@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tracker Triatlon — Sprint 2027</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#01574C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tri Tracker">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#01574c;
+    --green-deep:#013a33;
+    --gold:#F4A802;
+    --gold-soft:#fce4ae;
+    --cream:#FAF6EC;
+    --card:#FFFFFF;
+    --ink:#1B2620;
+    --ink-soft:#5b6b64;
+    --sage:#7FA69A;
+    --sage-bg:#E4EEEC;
+    --coral:#C1502E;
+    --coral-bg:#f6e2da;
+    --line:#e4ddca;
+    --radius:14px;
+    --shadow: 0 2px 10px rgba(1,87,76,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  h1,h2,h3{font-family:'Bebas Neue', sans-serif; letter-spacing:0.03em; margin:0;}
+
+  /* ===== HEADER / HERO ===== */
+  header.hero{
+    background:linear-gradient(160deg, var(--green) 0%, var(--green-deep) 100%);
+    color:#fff;
+    padding:36px 24px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute; right:-60px; top:-60px;
+    width:220px; height:220px; border-radius:50%;
+    background:radial-gradient(circle, rgba(244,168,2,0.18), transparent 70%);
+  }
+  .hero-inner{max-width:1000px; margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:6px;
+  }
+  header.hero h1{font-size:clamp(34px,6vw,54px); line-height:0.95;}
+  .hero-sub{color:#cfe4df; font-size:15px; margin-top:6px; max-width:520px;}
+
+  .countdown-row{
+    display:flex; gap:14px; margin-top:22px; flex-wrap:wrap;
+  }
+  .countdown-chip{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:10px;
+    padding:10px 16px;
+    text-align:center;
+    min-width:78px;
+  }
+  .countdown-chip .num{font-family:'JetBrains Mono'; font-size:22px; font-weight:700; color:var(--gold);}
+  .countdown-chip .lbl{font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:#cfe4df;}
+
+  /* signature split bar */
+  .splitbar-wrap{margin-top:26px;}
+  .splitbar-label{font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:#cfe4df; margin-bottom:8px; display:flex; justify-content:space-between;}
+  .splitbar{
+    display:flex; height:34px; border-radius:8px; overflow:hidden;
+    border:1px solid rgba(255,255,255,0.18);
+    position:relative;
+  }
+  .splitbar > div{display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono'; font-size:11px; color:#fff; position:relative;}
+  .seg-swim{background:#0d7a6a;}
+  .seg-t1{background:#0a4a41; flex:0 0 10px !important;}
+  .seg-bike{background:#F4A802; color:#1B2620 !important;}
+  .seg-t2{background:#0a4a41; flex:0 0 10px !important;}
+  .seg-run{background:#e08a3e;}
+  .splitbar-progress{
+    position:absolute; top:0; left:0; height:100%;
+    background:repeating-linear-gradient(45deg, rgba(255,255,255,0.35), rgba(255,255,255,0.35) 4px, transparent 4px, transparent 8px);
+    border-right:2px solid #fff;
+    transition:width 0.4s ease;
+  }
+
+  /* ===== NAV TABS ===== */
+  nav.tabs{
+    max-width:1000px; margin:0 auto; padding:0 24px;
+    display:flex; gap:6px; margin-top:-18px; position:relative; z-index:2; flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-family:'Work Sans'; font-weight:600; font-size:13.5px;
+    background:var(--card); color:var(--ink-soft);
+    border:1px solid var(--line);
+    padding:10px 18px; border-radius:10px 10px 0 0;
+    cursor:pointer; box-shadow:var(--shadow);
+  }
+  nav.tabs button.active{
+    background:var(--green); color:#fff; border-color:var(--green);
+  }
+
+  main{max-width:1000px; margin:0 auto; padding:20px 24px 60px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; box-shadow:var(--shadow); margin-bottom:18px;
+  }
+  .card h2{font-size:22px; color:var(--green); margin-bottom:14px;}
+  .card h3{font-size:16px; color:var(--green); font-family:'Work Sans'; font-weight:700; letter-spacing:0; margin-bottom:10px;}
+
+  /* form */
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px;}
+  label{display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:5px;}
+  input, select, textarea{
+    width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:8px;
+    font-family:'Work Sans'; font-size:14px; background:#fffdf8; color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--sage);}
+  textarea{resize:vertical; min-height:64px;}
+
+  .discipline-picker{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+  .discipline-picker button{
+    border:1.5px solid var(--line); background:#fff; padding:9px 14px; border-radius:20px;
+    font-family:'Work Sans'; font-size:13px; font-weight:600; cursor:pointer; color:var(--ink-soft);
+    display:flex; align-items:center; gap:6px;
+  }
+  .discipline-picker button.sel{
+    background:var(--green); color:#fff; border-color:var(--green);
+  }
+
+  .fatigue-wrap{margin-top:16px;}
+  .fatigue-scale{display:flex; align-items:center; gap:12px;}
+  input[type=range]{-webkit-appearance:none; height:8px; border-radius:6px; background:linear-gradient(90deg, var(--sage), var(--gold) 50%, var(--coral)); flex:1;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:#fff; border:3px solid var(--green); cursor:pointer; margin-top:-1px;}
+  .fatigue-val{font-family:'JetBrains Mono'; font-weight:700; font-size:20px; width:34px; text-align:center; color:var(--green);}
+
+  .btn{
+    background:var(--gold); color:var(--green-deep); border:none; padding:12px 22px;
+    border-radius:9px; font-weight:700; font-size:14px; cursor:pointer; font-family:'Work Sans';
+    box-shadow:0 2px 0 #c98700;
+  }
+  .btn:active{transform:translateY(1px); box-shadow:none;}
+  .btn.secondary{background:transparent; color:var(--green); border:1.5px solid var(--green); box-shadow:none;}
+  .btn.danger{background:transparent; color:var(--coral); border:1.5px solid var(--coral); box-shadow:none; padding:6px 12px; font-size:12px;}
+
+  .compare-badges{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .badge{
+    padding:8px 13px; border-radius:8px; font-family:'JetBrains Mono'; font-size:12.5px; font-weight:700;
+    display:flex; flex-direction:column; gap:2px; min-width:150px;
+  }
+  .badge .t{font-size:10px; text-transform:uppercase; letter-spacing:0.06em; font-family:'Work Sans'; font-weight:600; opacity:0.75;}
+  .badge.ok{background:var(--sage-bg); color:#1c4a3f;}
+  .badge.warn{background:var(--coral-bg); color:var(--coral);}
+  .badge.neutral{background:#f1eee0; color:var(--ink-soft);}
+
+  /* dashboard */
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px;}
+  .stat{background:var(--sage-bg); border-radius:10px; padding:16px;}
+  .stat .num{font-family:'JetBrains Mono'; font-size:26px; font-weight:700; color:var(--green);}
+  .stat .lbl{font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; margin-top:2px;}
+
+  .sparkline-row{display:flex; align-items:flex-end; gap:14px; margin-top:6px;}
+  svg.spark{overflow:visible;}
+
+  /* history */
+  .filter-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .filter-row button{
+    border:1.5px solid var(--line); background:#fff; padding:7px 14px; border-radius:20px;
+    font-size:12.5px; font-weight:600; cursor:pointer; color:var(--ink-soft);
+  }
+  .filter-row button.sel{background:var(--green); color:#fff; border-color:var(--green);}
+
+  .entry{
+    border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px;
+    display:flex; justify-content:space-between; gap:14px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .entry-left{flex:1; min-width:220px;}
+  .entry-tag{
+    display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:6px;
+    margin-bottom:6px; font-family:'JetBrains Mono';
+  }
+  .tag-inot{background:#d7ecf3; color:#0c5570;}
+  .tag-bike{background:var(--gold-soft); color:#8a5c00;}
+  .tag-alergare{background:#f5ddc8; color:#a04a10;}
+  .tag-tranzitie{background:#e6e1f5; color:#4a3a8a;}
+  .tag-forta{background:#ffe0d0; color:#a03a13;}
+  .tag-crossfit{background:#ffe0d0; color:#a03a13;}
+  .subcard{background:#fffdf8; border:1.5px dashed var(--line); border-radius:12px; padding:16px; margin-top:14px;}
+  .strength-block{border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:#fff;}
+  .sets-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px;}
+  .sets-grid label{font-size:10px; margin-bottom:3px;}
+  .pr-row{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px dashed var(--line); font-size:14px;}
+  .pr-row:last-child{border-bottom:none;}
+  .pr-weight{font-family:'JetBrains Mono'; font-weight:700; color:var(--green);}
+  .entry-desc{font-size:14px; color:var(--ink); margin-bottom:4px;}
+  .entry-meta{font-size:12.5px; color:var(--ink-soft); font-family:'JetBrains Mono';}
+  .entry-feel{font-size:13px; color:var(--ink-soft); margin-top:6px; font-style:italic;}
+  .entry-right{text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
+  .fatigue-pill{
+    font-family:'JetBrains Mono'; font-weight:700; font-size:12.5px; padding:4px 10px; border-radius:16px;
+  }
+  .empty-state{text-align:center; padding:40px 20px; color:var(--ink-soft);}
+  .empty-state .big{font-family:'Bebas Neue'; font-size:28px; color:var(--sage); letter-spacing:0.02em;}
+
+  /* settings */
+  .target-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; align-items:end; margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed var(--line);}
+  .target-row:last-child{border-bottom:none;}
+  .target-title{font-weight:700; color:var(--green); font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px;}
+
+  footer{text-align:center; padding:24px; color:var(--ink-soft); font-size:12px;}
+
+  @media (max-width:640px){
+    .target-row{grid-template-columns:1fr;}
+    .entry{flex-direction:column;}
+    .entry-right{align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">MSI Triathlon Sprint · 2027</div>
+    <h1>Sub 1h35min</h1>
+    <div class="hero-sub">750m înot · 20km bike · 5km alergare — fiecare antrenament e un pas spre linia de start.</div>
+
+    <div class="countdown-row" id="countdownRow"></div>
+
+    <div class="splitbar-wrap">
+      <div class="splitbar-label">
+        <span>ÎNOT 20:00 → T1 → BIKE 45:00 → T2 → ALERGARE 27:00</span>
+        <span id="totalTargetLbl">Total țintă: 1:35:00</span>
+      </div>
+      <div class="splitbar" id="splitbar">
+        <div class="seg-swim" style="flex:20;">ÎNOT</div>
+        <div class="seg-t1"></div>
+        <div class="seg-bike" style="flex:45;">BIKE</div>
+        <div class="seg-t2"></div>
+        <div class="seg-run" style="flex:27;">ALERGARE</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-panel="log" class="active">+ Antrenament nou</button>
+  <button data-panel="dashboard">Dashboard</button>
+  <button data-panel="istoric">Istoric</button>
+  <button data-panel="targete">Ținte</button>
+</nav>
+
+<main>
+
+  <!-- ===== LOG PANEL ===== -->
+  <section class="panel active" id="panel-log">
+    <div class="card">
+      <h2>Antrenament nou</h2>
+
+      <div class="grid" style="margin-bottom:14px;">
+        <div>
+          <label>Data</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+
+      <label>Disciplină</label>
+      <div class="discipline-picker" id="disciplinePicker">
+        <button data-d="inot" class="sel">🏊 Înot</button>
+        <button data-d="bike">🚴 Bike</button>
+        <button data-d="alergare">🏃 Alergare</button>
+        <button data-d="tranzitie">🔁 Tranziție</button>
+        <button data-d="crossfit">🏋 CrossFit</button>
+      </div>
+
+      <div id="descWrap">
+        <label id="descLabel">Ce antrenament ai făcut</label>
+        <textarea id="f-desc" placeholder="Ex: 15x50m tempo, pauză 20s / Rulaj continuu zonă 2 / Serii 6x400m..."></textarea>
+      </div>
+
+      <div class="grid" style="margin-top:14px;" id="stdFieldsWrap">
+        <div id="wrap-distanta">
+          <label>Distanță (m pt. înot/alergare, km pt. bike)</label>
+          <input type="number" id="f-dist" step="0.01" placeholder="ex: 750">
+        </div>
+        <div>
+          <label>Timp (minute)</label>
+          <input type="number" id="f-timp" step="0.1" placeholder="ex: 21.5">
+        </div>
+      </div>
+
+      <div class="compare-badges" id="compareBadges"></div>
+
+      <div id="crossfitBlock" style="display:none;">
+        <div class="subcard">
+          <h3>💪 Strength</h3>
+          <div id="strengthExercises"></div>
+          <button type="button" class="btn secondary" id="addExerciseBtn">+ Adaugă exercițiu</button>
+        </div>
+
+        <div class="subcard">
+          <h3>🔥 WOD</h3>
+          <label>Antrenament</label>
+          <textarea id="wod-desc" placeholder="Ex: 21-15-9 Thrusters / Pull-ups"></textarea>
+          <div class="grid" style="margin-top:12px;">
+            <div>
+              <label>Tip WOD</label>
+              <select id="wod-type">
+                <option value="AMRAP">AMRAP</option>
+                <option value="FOR TIME">FOR TIME</option>
+                <option value="EMOM">EMOM</option>
+              </select>
+            </div>
+            <div>
+              <label>Timp / Rezultat</label>
+              <input type="text" id="wod-time" placeholder="ex: 14:32 sau 6 runde+10">
+            </div>
+          </div>
+          <label style="margin-top:12px;">Greutăți folosite</label>
+          <input type="text" id="wod-weights" placeholder="ex: Thruster 40kg, KB 24kg">
+        </div>
+      </div>
+
+      <div class="fatigue-wrap">
+        <label>Cum te-ai simțit după antrenament</label>
+        <textarea id="f-feel" placeholder="Notează-ți starea, senzațiile, orice ai observat..."></textarea>
+      </div>
+
+      <div class="fatigue-wrap">
+        <label>Nivel de oboseală (1 = deloc obosită · 10 = cea mai obosită)</label>
+        <div class="fatigue-scale">
+          <input type="range" min="1" max="10" value="5" id="f-fatigue">
+          <div class="fatigue-val" id="fatigueVal">5</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button class="btn" id="saveBtn">Salvează antrenamentul</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DASHBOARD PANEL ===== -->
+  <section class="panel" id="panel-dashboard">
+    <div class="card">
+      <h2>Dashboard</h2>
+      <div class="stat-grid" id="statGrid"></div>
+    </div>
+
+    <div class="card">
+      <h3>Tendință oboseală — ultimele 14 antrenamente</h3>
+      <div class="sparkline-row" id="fatigueSpark"></div>
+    </div>
+
+    <div class="card">
+      <h3>🏆 Recorduri personale (PR)</h3>
+      <div id="prList"></div>
+    </div>
+
+    <div class="card">
+      <h3>Cel mai bun ritm per disciplină</h3>
+      <div class="stat-grid" id="bestGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== ISTORIC PANEL ===== -->
+  <section class="panel" id="panel-istoric">
+    <div class="card">
+      <h2>Istoric antrenamente</h2>
+      <div class="filter-row" id="filterRow">
+        <button data-f="all" class="sel">Toate</button>
+        <button data-f="inot">🏊 Înot</button>
+        <button data-f="bike">🚴 Bike</button>
+        <button data-f="alergare">🏃 Alergare</button>
+        <button data-f="tranzitie">🔁 Tranziție</button>
+        <button data-f="crossfit">🏋 CrossFit</button>
+      </div>
+      <div id="entryList"></div>
+    </div>
+  </section>
+
+  <!-- ===== TARGETE PANEL ===== -->
+  <section class="panel" id="panel-targete">
+    <div class="card">
+      <h2>Ținte de antrenament</h2>
+      <div class="hero-sub" style="color:var(--ink-soft); margin-bottom:18px;">
+        Ținta de cursă e fixă (750m/20:00 · 20km/45:00 · 5km/27:00). Ținta de antrenament o poți ajusta —
+        de obicei ritmul din antrenamentele obișnuite e puțin mai relaxat decât ritmul de cursă.
+      </div>
+
+      <div class="target-row">
+        <div style="grid-column:1/-1;" class="target-title">🏊 Înot — antrenament</div>
+        <div><label>Distanță referință (m)</label><input type="number" id="t-inot-dist" value="750"></div>
+        <div><label>Timp țintă (minute)</label><input type="number" id="t-inot-timp" value="22"></div>
+        <div></div>
+      </div>
+
+      <div class="target-row">
+        <div style="grid-column:1/-1;" class="target-title">🚴 Bike — antrenament</div>
+        <div><label>Distanță referință (km)</label><input type="number" id="t-bike-dist" value="20"></div>
+        <div><label>Timp țintă (minute)</label><input type="number" id="t-bike-timp" value="48"></div>
+        <div></div>
+      </div>
+
+      <div class="target-row">
+        <div style="grid-column:1/-1;" class="target-title">🏃 Alergare — antrenament</div>
+        <div><label>Distanță referință (km)</label><input type="number" id="t-run-dist" value="5"></div>
+        <div><label>Timp țintă (minute)</label><input type="number" id="t-run-timp" value="29"></div>
+        <div></div>
+      </div>
+
+      <button class="btn secondary" id="saveTargetsBtn">Salvează țintele de antrenament</button>
+      <div id="targetSavedMsg" style="margin-top:10px; font-size:13px; color:var(--sage); font-weight:600; display:none;">✓ Salvat</div>
+    </div>
+
+    <div class="card">
+      <h2>📦 Backup date</h2>
+      <div class="hero-sub" style="color:var(--ink-soft); margin-bottom:16px;">
+        Datele tale (antrenamente, PR-uri) sunt salvate doar local, pe acest telefon, legate de acest link exact.
+        Dacă link-ul se schimbă vreodată (ex: redenumești repo-ul), datele vechi nu se mai văd automat.
+        Fă export periodic ca să ai o copie de siguranță.
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="exportBtn">⬇ Exportă backup</button>
+        <button class="btn secondary" id="importBtn">⬆ Importă backup</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+      <div id="backupMsg" style="margin-top:10px; font-size:13px; font-weight:600; display:none;"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Tracker Triatlon — datele tale rămân salvate local, în acest browser.</footer>
+
+<script>
+// ===================== DATA LAYER =====================
+const STORAGE_KEY = 'triatlon_tracker_entries_v1';
+const TARGETS_KEY = 'triatlon_tracker_training_targets_v1';
+
+const RACE_TARGETS = {
+  inot: {dist:750, timeSec:20*60},
+  bike: {dist:20, timeSec:45*60},
+  alergare: {dist:5, timeSec:27*60}
+};
+
+function loadEntries(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e){ return []; }
+}
+function saveEntries(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+function loadTargets(){
+  try{
+    const t = JSON.parse(localStorage.getItem(TARGETS_KEY));
+    if(t) return t;
+  }catch(e){}
+  return {
+    inot:{dist:750, timeMin:22},
+    bike:{dist:20, timeMin:48},
+    alergare:{dist:5, timeMin:29}
+  };
+}
+function saveTargets(t){
+  localStorage.setItem(TARGETS_KEY, JSON.stringify(t));
+}
+
+let entries = loadEntries();
+let trainingTargets = loadTargets();
+let selectedDiscipline = 'inot';
+let currentFilter = 'all';
+const CROSSFIT_EXERCISES = ['Deadlift','Back Squat','Front Squat','Overhead Squat','Bench Press','Strict Press','Push Press','Power Clean','Squat Clean','Clean & Jerk','Power Snatch','Snatch','Split Jerk'];
+let strengthBlocks = [];
+let sbCounter = 0;
+
+// ===================== HELPERS =====================
+function paceSecPerUnit(distUnit, timeSec){ // seconds per unit (100m for swim, km for bike/run)
+  return timeSec / distUnit;
+}
+function fmtMinSec(totalSec){
+  const m = Math.floor(totalSec/60);
+  const s = Math.round(totalSec%60);
+  return m + ':' + String(s).padStart(2,'0');
+}
+function fmtHMS(totalSec){
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = Math.round(totalSec%60);
+  return (h>0?h+':':'') + String(m).padStart(h>0?2:1,'0') + ':' + String(s).padStart(2,'0');
+}
+function disciplineLabel(d){
+  return {inot:'🏊 Înot',bike:'🚴 Bike',alergare:'🏃 Alergare',tranzitie:'🔁 Tranziție',crossfit:'🏋 CrossFit', forta:'🏋 CrossFit'}[d] || d;
+}
+function disciplineUnit(d){
+  return d==='bike' ? 'km' : 'm';
+}
+
+// pace comparison: for swim compute per 100m, for bike per km, for run per km
+function computePace(d, distVal, timeMinVal){
+  const timeSec = timeMinVal*60;
+  if(d==='inot'){
+    return paceSecPerUnit(distVal/100, timeSec); // sec per 100m
+  } else {
+    return paceSecPerUnit(distVal, timeSec); // sec per km
+  }
+}
+function raceTargetPace(d){
+  const rt = RACE_TARGETS[d];
+  if(d==='inot') return paceSecPerUnit(rt.dist/100, rt.timeSec);
+  return paceSecPerUnit(rt.dist, rt.timeSec);
+}
+function trainingTargetPace(d){
+  const tt = trainingTargets[d];
+  if(!tt) return null;
+  const timeSec = tt.timeMin*60;
+  if(d==='inot') return paceSecPerUnit(tt.dist/100, timeSec);
+  return paceSecPerUnit(tt.dist, timeSec);
+}
+function paceUnitLabel(d){
+  return d==='inot' ? '/100m' : '/km';
+}
+
+// ===================== NAV TABS =====================
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+    if(btn.dataset.panel==='dashboard') renderDashboard();
+    if(btn.dataset.panel==='istoric') renderHistory();
+  });
+});
+
+// ===================== LOG FORM =====================
+document.getElementById('f-date').valueAsDate = new Date();
+
+document.querySelectorAll('#disciplinePicker button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#disciplinePicker button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    selectedDiscipline = btn.dataset.d;
+    updateDistUnitLabel();
+    updateCompareBadges();
+    toggleDisciplineFields();
+  });
+});
+
+function toggleDisciplineFields(){
+  const isCrossfit = selectedDiscipline === 'crossfit';
+  document.getElementById('stdFieldsWrap').style.display = isCrossfit ? 'none' : '';
+  document.getElementById('compareBadges').style.display = isCrossfit ? 'none' : '';
+  document.getElementById('crossfitBlock').style.display = isCrossfit ? 'block' : 'none';
+  document.getElementById('descWrap').style.display = isCrossfit ? 'none' : '';
+  if(isCrossfit && strengthBlocks.length===0){
+    addStrengthBlock();
+  }
+}
+
+function addStrengthBlock(){
+  sbCounter++;
+  strengthBlocks.push({id:sbCounter, exercise:CROSSFIT_EXERCISES[0], sets:['','','','','']});
+  renderStrengthBlocks();
+}
+function removeStrengthBlock(id){
+  strengthBlocks = strengthBlocks.filter(b=>b.id!==id);
+  renderStrengthBlocks();
+}
+function renderStrengthBlocks(){
+  const wrap = document.getElementById('strengthExercises');
+  wrap.innerHTML = strengthBlocks.map(b=>`
+    <div class="strength-block" data-id="${b.id}">
+      <div style="display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
+        <div style="flex:1; min-width:160px;">
+          <label>Exercițiu</label>
+          <select class="sb-exercise">
+            ${CROSSFIT_EXERCISES.map(ex=>`<option value="${ex}" ${ex===b.exercise?'selected':''}>${ex}</option>`).join('')}
+          </select>
+        </div>
+        <button type="button" class="btn danger sb-remove">Șterge</button>
+      </div>
+      <div class="sets-grid">
+        ${[0,1,2,3,4].map(i=>`
+          <div>
+            <label>Seria ${i+1} (kg)</label>
+            <input type="number" step="0.5" class="sb-set" data-i="${i}" value="${b.sets[i]}">
+          </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  wrap.querySelectorAll('.strength-block').forEach(blockEl=>{
+    const id = parseInt(blockEl.dataset.id);
+    blockEl.querySelector('.sb-exercise').addEventListener('change',(e)=>{
+      const b = strengthBlocks.find(x=>x.id===id);
+      b.exercise = e.target.value;
+    });
+    blockEl.querySelectorAll('.sb-set').forEach(inp=>{
+      inp.addEventListener('input',(e)=>{
+        const b = strengthBlocks.find(x=>x.id===id);
+        b.sets[parseInt(e.target.dataset.i)] = e.target.value;
+      });
+    });
+    blockEl.querySelector('.sb-remove').addEventListener('click',()=>removeStrengthBlock(id));
+  });
+}
+document.getElementById('addExerciseBtn').addEventListener('click', addStrengthBlock);
+
+function getPRs(){
+  const prs = {};
+  entries.forEach(e=>{
+    if(e.discipline==='crossfit' && e.crossfit && e.crossfit.strength){
+      e.crossfit.strength.forEach(b=>{
+        b.sets.forEach(w=>{
+          if(w==null || isNaN(w)) return;
+          if(!prs[b.exercise] || w > prs[b.exercise].weight){
+            prs[b.exercise] = {weight:w, date:e.date};
+          }
+        });
+      });
+    }
+  });
+  return prs;
+}
+function updateDistUnitLabel(){
+  const lbl = document.querySelector('#wrap-distanta label');
+  if(selectedDiscipline==='bike') lbl.textContent = 'Distanță (km)';
+  else if(selectedDiscipline==='inot') lbl.textContent = 'Distanță (m)';
+  else if(selectedDiscipline==='alergare') lbl.textContent = 'Distanță (m)';
+  else lbl.textContent = 'Distanță (opțional)';
+}
+updateDistUnitLabel();
+
+document.getElementById('f-fatigue').addEventListener('input', (e)=>{
+  document.getElementById('fatigueVal').textContent = e.target.value;
+});
+
+['f-dist','f-timp'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateCompareBadges);
+});
+
+function updateCompareBadges(){
+  const box = document.getElementById('compareBadges');
+  box.innerHTML = '';
+  if(!['inot','bike','alergare'].includes(selectedDiscipline)) return;
+
+  let distVal = parseFloat(document.getElementById('f-dist').value);
+  const timeMinVal = parseFloat(document.getElementById('f-timp').value);
+  if(selectedDiscipline==='alergare' && distVal){ /* stored in meters, convert to km for pace calc */ }
+  if(!distVal || !timeMinVal) return;
+
+  let distForPace = distVal;
+  if(selectedDiscipline==='alergare') distForPace = distVal/1000; // meters -> km
+  if(selectedDiscipline==='inot') distForPace = distVal; // stays meters, converted inside computePace
+
+  const actualPace = computePace(selectedDiscipline, distForPace, timeMinVal);
+  const raceP = raceTargetPace(selectedDiscipline);
+  const trainP = trainingTargetPace(selectedDiscipline);
+  const unit = paceUnitLabel(selectedDiscipline);
+
+  function badgeHtml(label, targetPace){
+    if(targetPace==null) return '';
+    const diff = actualPace - targetPace;
+    const cls = diff<=0 ? 'ok' : (diff <= targetPace*0.06 ? 'neutral' : 'warn');
+    const sign = diff<=0 ? '−' : '+';
+    return `<div class="badge ${cls}">
+      <span class="t">${label}</span>
+      <span>${fmtMinSec(actualPace)} ${unit} · ${sign}${fmtMinSec(Math.abs(diff))}</span>
+    </div>`;
+  }
+
+  box.innerHTML =
+    `<div class="badge neutral"><span class="t">Ritmul tău</span><span>${fmtMinSec(actualPace)} ${unit}</span></div>` +
+    badgeHtml('vs. țintă antrenament', trainP) +
+    badgeHtml('vs. țintă cursă', raceP);
+}
+
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const date = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
+  const distRaw = document.getElementById('f-dist').value;
+  const timeRaw = document.getElementById('f-timp').value;
+  const feel = document.getElementById('f-feel').value.trim();
+  const fatigue = parseInt(document.getElementById('f-fatigue').value);
+
+  let desc;
+  let crossfitData = null;
+  let newPRs = [];
+
+  if(selectedDiscipline === 'crossfit'){
+    desc = document.getElementById('wod-desc').value.trim();
+    const prevPRs = getPRs();
+    const strength = strengthBlocks
+      .map(b=>({exercise:b.exercise, sets:b.sets.map(s=>s===''?null:parseFloat(s)).filter(v=>v!==null && !isNaN(v))}))
+      .filter(b=>b.sets.length>0);
+    const wodType = document.getElementById('wod-type').value;
+    const wodTime = document.getElementById('wod-time').value.trim();
+    const wodWeights = document.getElementById('wod-weights').value.trim();
+    const wod = (wodTime || wodWeights) ? {type:wodType, time:wodTime, weights:wodWeights} : null;
+
+    if(strength.length===0 && !wod && !desc){
+      alert('Adaugă cel puțin ceva: strength, WOD sau o descriere a antrenamentului.');
+      return;
+    }
+    crossfitData = {strength, wod};
+
+    strength.forEach(b=>{
+      const maxSet = Math.max(...b.sets);
+      if(!prevPRs[b.exercise] || maxSet > prevPRs[b.exercise].weight){
+        newPRs.push({exercise:b.exercise, weight:maxSet});
+      }
+    });
+  } else {
+    desc = document.getElementById('f-desc').value.trim();
+    if(!desc){ alert('Adaugă o descriere a antrenamentului.'); return; }
+  }
+
+  const entry = {
+    id: Date.now(),
+    date, discipline: selectedDiscipline, desc,
+    dist: distRaw ? parseFloat(distRaw) : null,
+    timeMin: timeRaw ? parseFloat(timeRaw) : null,
+    crossfit: crossfitData,
+    feel, fatigue
+  };
+  entries.push(entry);
+  saveEntries(entries);
+
+  // reset form
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-dist').value='';
+  document.getElementById('f-timp').value='';
+  document.getElementById('f-feel').value='';
+  document.getElementById('f-fatigue').value=5;
+  document.getElementById('fatigueVal').textContent='5';
+  document.getElementById('compareBadges').innerHTML='';
+  document.getElementById('f-date').valueAsDate = new Date();
+  strengthBlocks = [];
+  renderStrengthBlocks();
+  if(document.getElementById('wod-desc')) document.getElementById('wod-desc').value='';
+  if(document.getElementById('wod-time')) document.getElementById('wod-time').value='';
+  if(document.getElementById('wod-weights')) document.getElementById('wod-weights').value='';
+  if(selectedDiscipline==='crossfit') addStrengthBlock();
+
+  updateSplitbarProgress();
+
+  const savedTag = document.createElement('div');
+  savedTag.textContent = newPRs.length
+    ? '✓ Salvat! 🎉 PR nou: ' + newPRs.map(p=>p.exercise+' '+p.weight+'kg').join(', ')
+    : '✓ Antrenament salvat!';
+  savedTag.style.cssText = 'color:#1c4a3f;font-weight:700;margin-top:12px;font-size:13px;';
+  document.querySelector('#panel-log .card').appendChild(savedTag);
+  setTimeout(()=>savedTag.remove(), 3200);
+});
+
+// ===================== TARGETS PANEL =====================
+function fillTargetInputs(){
+  document.getElementById('t-inot-dist').value = trainingTargets.inot.dist;
+  document.getElementById('t-inot-timp').value = trainingTargets.inot.timeMin;
+  document.getElementById('t-bike-dist').value = trainingTargets.bike.dist;
+  document.getElementById('t-bike-timp').value = trainingTargets.bike.timeMin;
+  document.getElementById('t-run-dist').value = trainingTargets.alergare.dist;
+  document.getElementById('t-run-timp').value = trainingTargets.alergare.timeMin;
+}
+fillTargetInputs();
+
+document.getElementById('saveTargetsBtn').addEventListener('click', ()=>{
+  trainingTargets = {
+    inot:{dist:parseFloat(document.getElementById('t-inot-dist').value)||750, timeMin:parseFloat(document.getElementById('t-inot-timp').value)||22},
+    bike:{dist:parseFloat(document.getElementById('t-bike-dist').value)||20, timeMin:parseFloat(document.getElementById('t-bike-timp').value)||48},
+    alergare:{dist:parseFloat(document.getElementById('t-run-dist').value)||5, timeMin:parseFloat(document.getElementById('t-run-timp').value)||29}
+  };
+  saveTargets(trainingTargets);
+  const msg = document.getElementById('targetSavedMsg');
+  msg.style.display='block';
+  setTimeout(()=>msg.style.display='none', 2000);
+});
+
+// ===================== BACKUP EXPORT / IMPORT =====================
+function showBackupMsg(text, ok){
+  const msg = document.getElementById('backupMsg');
+  msg.textContent = text;
+  msg.style.color = ok ? '#1c6b4f' : 'var(--coral)';
+  msg.style.display = 'block';
+  setTimeout(()=>msg.style.display='none', 3500);
+}
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    entries: entries,
+    trainingTargets: trainingTargets
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `backup-tracker-triatlon-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showBackupMsg('✓ Backup descărcat.', true);
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!Array.isArray(data.entries)) throw new Error('format invalid');
+      const confirmMsg = `Acest backup are ${data.entries.length} antrenamente. Suprascrii datele actuale (${entries.length} antrenamente)?`;
+      if(!confirm(confirmMsg)) return;
+      entries = data.entries;
+      saveEntries(entries);
+      if(data.trainingTargets){
+        trainingTargets = data.trainingTargets;
+        saveTargets(trainingTargets);
+        fillTargetInputs();
+      }
+      renderHistory();
+      renderDashboard();
+      updateSplitbarProgress();
+      renderCountdown();
+      showBackupMsg('✓ Backup restaurat cu succes.', true);
+    }catch(err){
+      showBackupMsg('✗ Fișier invalid — nu pare un backup de la acest tracker.', false);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ===================== HISTORY =====================
+document.querySelectorAll('#filterRow button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#filterRow button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    currentFilter = btn.dataset.f;
+    renderHistory();
+  });
+});
+
+function deleteEntry(id){
+  if(!confirm('Ștergi acest antrenament?')) return;
+  entries = entries.filter(e=>e.id!==id);
+  saveEntries(entries);
+  renderHistory();
+  renderDashboard();
+  updateSplitbarProgress();
+}
+
+function fatigueColor(f){
+  if(f<=3) return {bg:'#dcefe8', c:'#1c6b4f'};
+  if(f<=6) return {bg:'#fde9c4', c:'#8a5c00'};
+  return {bg:'var(--coral-bg)', c:'var(--coral)'};
+}
+
+function renderHistory(){
+  const list = document.getElementById('entryList');
+  let filtered = currentFilter==='all' ? entries : entries.filter(e=>e.discipline===currentFilter);
+  filtered = filtered.slice().sort((a,b)=> new Date(b.date)-new Date(a.date) || b.id-a.id);
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class="empty-state"><div class="big">Niciun antrenament încă</div>Adaugă primul din tab-ul „+ Antrenament nou”.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(e=>{
+    const fc = fatigueColor(e.fatigue);
+    let metaStr = '';
+    let crossfitHtml = '';
+    if(e.discipline === 'crossfit' && e.crossfit){
+      if(e.crossfit.strength && e.crossfit.strength.length){
+        const lines = e.crossfit.strength.map(b=>`<strong>${escapeHtml(b.exercise)}:</strong> ${b.sets.join(' / ')} kg`).join('<br>');
+        crossfitHtml += `<div class="entry-meta" style="margin-top:6px; line-height:1.6;">💪 ${lines}</div>`;
+      }
+      if(e.crossfit.wod){
+        const w = e.crossfit.wod;
+        crossfitHtml += `<div class="entry-meta" style="margin-top:6px;">🔥 ${escapeHtml(w.type)}${w.time?' · '+escapeHtml(w.time):''}${w.weights?' · '+escapeHtml(w.weights):''}</div>`;
+      }
+    } else if(e.dist && e.timeMin){
+      const unit = disciplineUnit(e.discipline);
+      metaStr = `${e.dist}${unit} · ${e.timeMin} min`;
+      if(['inot','bike','alergare'].includes(e.discipline)){
+        let distForPace = e.discipline==='alergare' ? e.dist/1000 : e.dist;
+        const pace = computePace(e.discipline, distForPace, e.timeMin);
+        metaStr += ` · ${fmtMinSec(pace)} ${paceUnitLabel(e.discipline)}`;
+      }
+    } else if(e.timeMin){
+      metaStr = `${e.timeMin} min`;
+    }
+    return `<div class="entry">
+      <div class="entry-left">
+        <span class="entry-tag tag-${e.discipline}">${disciplineLabel(e.discipline)}</span>
+        <div class="entry-meta" style="margin-bottom:4px;">${new Date(e.date).toLocaleDateString('ro-RO',{weekday:'short', day:'numeric', month:'short'})}</div>
+        ${e.desc ? `<div class="entry-desc">${escapeHtml(e.desc)}</div>` : ''}
+        ${metaStr ? `<div class="entry-meta">${metaStr}</div>` : ''}
+        ${crossfitHtml}
+        ${e.feel ? `<div class="entry-feel">"${escapeHtml(e.feel)}"</div>` : ''}
+      </div>
+      <div class="entry-right">
+        <div class="fatigue-pill" style="background:${fc.bg}; color:${fc.c};">Oboseală ${e.fatigue}/10</div>
+        <button class="btn danger" onclick="deleteEntry(${e.id})">Șterge</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard(){
+  const statGrid = document.getElementById('statGrid');
+  const total = entries.length;
+  const byDisc = {inot:0,bike:0,alergare:0,tranzitie:0,crossfit:0};
+  entries.forEach(e=>byDisc[e.discipline]++);
+
+  const last7 = entries.filter(e=>{
+    const d = new Date(e.date);
+    const now = new Date();
+    return (now-d)/(1000*60*60*24) <= 7;
+  });
+  const avgFatigue7 = last7.length ? (last7.reduce((s,e)=>s+e.fatigue,0)/last7.length).toFixed(1) : '—';
+
+  statGrid.innerHTML = `
+    <div class="stat"><div class="num">${total}</div><div class="lbl">Antrenamente totale</div></div>
+    <div class="stat"><div class="num">${byDisc.inot}</div><div class="lbl">🏊 Sesiuni înot</div></div>
+    <div class="stat"><div class="num">${byDisc.bike}</div><div class="lbl">🚴 Sesiuni bike</div></div>
+    <div class="stat"><div class="num">${byDisc.alergare}</div><div class="lbl">🏃 Sesiuni alergare</div></div>
+    <div class="stat"><div class="num">${byDisc.crossfit}</div><div class="lbl">🏋 Sesiuni CrossFit</div></div>
+    <div class="stat"><div class="num">${avgFatigue7}</div><div class="lbl">Oboseală medie (7 zile)</div></div>
+  `;
+
+  // fatigue sparkline
+  const spark = document.getElementById('fatigueSpark');
+  const sorted = entries.slice().sort((a,b)=>new Date(a.date)-new Date(b.date) || a.id-b.id).slice(-14);
+  if(sorted.length===0){
+    spark.innerHTML = `<div class="empty-state" style="padding:20px;">Fără date încă</div>`;
+  } else {
+    const w = 700, h = 90, pad=10;
+    const stepX = sorted.length>1 ? (w-2*pad)/(sorted.length-1) : 0;
+    const pts = sorted.map((e,i)=>{
+      const x = pad + i*stepX;
+      const y = h - pad - ((e.fatigue-1)/9)*(h-2*pad);
+      return [x,y,e.fatigue];
+    });
+    const pathD = pts.map((p,i)=> (i===0?'M':'L')+p[0]+','+p[1]).join(' ');
+    const circles = pts.map(p=>{
+      const col = p[2]<=3?'#1c6b4f':(p[2]<=6?'#c98700':'#C1502E');
+      return `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${col}"/>`;
+    }).join('');
+    spark.innerHTML = `<svg class="spark" viewBox="0 0 ${w} ${h}" width="100%" height="${h}">
+      <path d="${pathD}" fill="none" stroke="#7FA69A" stroke-width="2"/>
+      ${circles}
+    </svg>`;
+  }
+
+  // best pace per discipline
+  const bestGrid = document.getElementById('bestGrid');
+  let bestHtml = '';
+  ['inot','bike','alergare'].forEach(d=>{
+    const withPace = entries.filter(e=>e.discipline===d && e.dist && e.timeMin);
+    if(withPace.length===0){
+      bestHtml += `<div class="stat"><div class="num">—</div><div class="lbl">${disciplineLabel(d)}</div></div>`;
+      return;
+    }
+    let best = null, bestPace = Infinity;
+    withPace.forEach(e=>{
+      let distForPace = d==='alergare' ? e.dist/1000 : e.dist;
+      const p = computePace(d, distForPace, e.timeMin);
+      if(p<bestPace){bestPace=p; best=e;}
+    });
+    bestHtml += `<div class="stat"><div class="num">${fmtMinSec(bestPace)}</div><div class="lbl">${disciplineLabel(d)} ${paceUnitLabel(d)}</div></div>`;
+  });
+  bestGrid.innerHTML = bestHtml;
+
+  // personal records
+  const prList = document.getElementById('prList');
+  const prs = getPRs();
+  const prExercises = Object.keys(prs);
+  if(prExercises.length === 0){
+    prList.innerHTML = `<div class="empty-state" style="padding:16px;">Fără date încă — loghează un antrenament CrossFit cu greutăți.</div>`;
+  } else {
+    prList.innerHTML = prExercises
+      .sort((a,b)=> prs[b].weight - prs[a].weight)
+      .map(ex => `<div class="pr-row"><span>${escapeHtml(ex)}</span><span class="pr-weight">${prs[ex].weight} kg</span></div>`)
+      .join('');
+  }
+}
+
+// ===================== SPLITBAR PROGRESS (signature element) =====================
+function updateSplitbarProgress(){
+  const wrap = document.getElementById('splitbar');
+  let existing = wrap.querySelector('.splitbar-progress');
+  if(existing) existing.remove();
+
+  // progress = how many of the 3 disciplines have at least one session at/under training target pace, blended proportionally
+  const totalRaceSec = 20*60 + 45*60 + 27*60;
+  let coveredSec = 0;
+  ['inot','bike','alergare'].forEach(d=>{
+    const withPace = entries.filter(e=>e.discipline===d && e.dist && e.timeMin);
+    if(withPace.length===0) return;
+    let bestPace = Infinity;
+    withPace.forEach(e=>{
+      let distForPace = d==='alergare' ? e.dist/1000 : e.dist;
+      const p = computePace(d, distForPace, e.timeMin);
+      if(p<bestPace) bestPace=p;
+    });
+    const raceP = raceTargetPace(d);
+    const segSec = RACE_TARGETS[d].timeSec;
+    if(bestPace<=raceP) coveredSec += segSec;
+    else coveredSec += segSec * Math.min(1, raceP/bestPace);
+  });
+  const pct = Math.min(100, (coveredSec/totalRaceSec)*100);
+
+  const bar = document.createElement('div');
+  bar.className = 'splitbar-progress';
+  bar.style.width = pct+'%';
+  wrap.appendChild(bar);
+}
+
+// ===================== COUNTDOWN =====================
+function renderCountdown(){
+  const raceDate = new Date('2027-06-15');
+  const now = new Date();
+  let diff = raceDate - now;
+  if(diff<0) diff=0;
+  const days = Math.floor(diff/(1000*60*60*24));
+  const weeks = Math.floor(days/7);
+  const months = Math.floor(days/30.44);
+
+  document.getElementById('countdownRow').innerHTML = `
+    <div class="countdown-chip"><div class="num">${months}</div><div class="lbl">luni rămase</div></div>
+    <div class="countdown-chip"><div class="num">${weeks}</div><div class="lbl">săptămâni</div></div>
+    <div class="countdown-chip"><div class="num">${days}</div><div class="lbl">zile</div></div>
+    <div class="countdown-chip"><div class="num">${entries.length}</div><div class="lbl">antrenamente</div></div>
+  `;
+}
+
+// ===================== INIT =====================
+renderCountdown();
+updateSplitbarProgress();
+renderHistory();
+renderDashboard();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
